@@ -1,0 +1,7 @@
+# uv虚拟环境
+.venv/
+
+# Deepseek密钥
+API_KEY.py
+
+# 
