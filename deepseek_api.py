@@ -378,7 +378,7 @@ def json_output_api():
     print(json.loads(response.choices[0].message.content))
 
 
-def function_calling():  # TODO
+def function_calling():
     """让模型能够调用外部工具, 来增强自身能力."""
 
     def get_weather(location):
