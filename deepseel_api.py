@@ -417,7 +417,53 @@ def function_calling():  # TODO
         tools=tools,
     )
 
-    print(f"content: {response.choices[0].message.content}")
+    # 检查是否有 tool_calls
+    if response.choices[0].message.tool_calls:
+        tool_call = response.choices[0].message.tool_calls[0]
+        tool_id = tool_call.id
+        function_name = tool_call.function.name
+        function_args = tool_call.function.arguments
+
+        print(f"Tool ID: {tool_id}")
+        print(f"Function Name: {function_name}")
+        print(f"Function Arguments: {function_args}")
+
+        # 需要添加tool_calls对应tool_call_id， 否则报错
+        assistant_message = response.choices[0].message
+        messages.append(
+            {
+                "role": "assistant",
+                "content": assistant_message.content,
+                "tool_calls": assistant_message.tool_calls,
+            }
+        )
+
+        # 调用本地函数
+        if function_name == "get_weather":
+            location = eval(function_args)["location"]  # 解析参数
+            weather_result = get_weather(location)
+
+            # 添加 tool 消息
+            messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": tool_id,
+                    "name": function_name,
+                    "content": weather_result,
+                }
+            )
+
+            # 第二次请求，获取最终响应
+            response = client.chat.completions.create(
+                model=MODEL_NAMES[0],
+                messages=messages,
+                tools=tools,
+            )
+            print(f"Final Response: {response.choices[0].message.content}")
+        else:
+            print("Unknown function called.")
+    else:
+        print("No tool calls triggered.")
 
 
 if __name__ == "__main__":
