@@ -6,3 +6,6 @@ API_KEY.py
 
 # 临时文件
 tmp/
+
+# 数据库文件路径
+database/
